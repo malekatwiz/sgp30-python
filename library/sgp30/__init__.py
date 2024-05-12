@@ -8,19 +8,23 @@ SGP30_I2C_ADDR = 0x58
 
 
 class SGP30Reading:
-    __slots__ = 'equivalent_co2', 'total_voc'
-
     def __init__(self, eco2, tvoc):
-        self.equivalent_co2 = eco2
-        self.total_voc = tvoc
+        self._equivalent_co2 = eco2
+        self._total_voc = tvoc
+
+    @property
+    def equivalent_co2(self):
+        return self._equivalent_co2
+
+    @property
+    def total_voc(self):
+        return self._total_voc
 
     def __str__(self):
         return """Air Quality:
 Equivalent C02: {: 5d} (ppm)
 Total VOC:      {: 5d} (ppb)
-""".format(self.equivalent_co2, self.total_voc)
-    def getValues(self):
-        return self.equivalent_co2, self.total_voc
+""".format(self._equivalent_co2, self._total_voc)
 
 
 class SGP30:
