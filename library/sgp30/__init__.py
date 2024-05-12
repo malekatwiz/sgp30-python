@@ -19,6 +19,8 @@ class SGP30Reading:
 Equivalent C02: {: 5d} (ppm)
 Total VOC:      {: 5d} (ppb)
 """.format(self.equivalent_co2, self.total_voc)
+    def getValues(self):
+        return self.equivalent_co2, self.total_voc
 
 
 class SGP30:

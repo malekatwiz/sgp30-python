@@ -1,6 +1,11 @@
 from sgp30 import SGP30
 import time
 import sys
+import csv
+import datetime
+
+fileName = f"sgp30_{time.strftime('%Y%m%d-%H%M%S')}.csv"
+csvHeader = ['timestamp', 'CO2', 'TVOC']
 
 sgp30 = SGP30()
 
@@ -16,7 +21,27 @@ def crude_progress_bar():
 sgp30.start_measurement(crude_progress_bar)
 sys.stdout.write('\n')
 
-while True:
-    result = sgp30.get_air_quality()
-    print(result)
-    time.sleep(1.0)
+with open(fileName, mode='w') as file:
+    writer = csv.writer(file)
+    writer.writerow(csvHeader)
+
+    readsCounter = 0
+    while True:
+        result = sgp30.get_air_quality()
+        print(result)
+
+        # write to csv
+        timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        co2, tvoc = result.getValues()
+        writer.writerow([timestamp, co2 , tvoc])
+        readsCounter += 1
+        time.sleep(1.0)
+
+        # roll over the file every 10k reads
+        if readsCounter >= 10000:
+            fileName = f"sgp30_{time.strftime('%Y%m%d-%H%M%S')}.csv"
+            with open(fileName, mode='w') as file:
+                writer = csv.writer(file)
+                writer.writerow(csvHeader)
+            readsCounter = 0
+
