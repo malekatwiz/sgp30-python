@@ -186,7 +186,7 @@ def crude_progress_bar():
 sgp30.start_measurement(crude_progress_bar)
 sys.stdout.write('\n')
 
-with open(fileName, mode='w') as file:
+with open(fileName, mode='w', newline= '') as file:
     writer = csv.writer(file)
     writer.writerow(csvHeader)
 
@@ -201,14 +201,16 @@ Total VOC:      {: 5d} (ppb)
         # write to csv
         timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         
-        writer.writerow([timestamp, co2 , tvoc])
+        co2Str = str(co2)
+        tvocStr = str(tvoc)
+        writer.writerow([timestamp, co2Str , tvocStr])
         readsCounter += 1
         time.sleep(1.0)
 
         # roll over the file every 10k reads
         if readsCounter >= 10000:
             fileName = f"sgp30_{time.strftime('%Y%m%d-%H%M%S')}.csv"
-            with open(fileName, mode='w') as file:
+            with open(fileName, mode='w', newline= '') as file:
                 writer = csv.writer(file)
                 writer.writerow(csvHeader)
             readsCounter = 0
