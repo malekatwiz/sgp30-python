@@ -1,11 +1,7 @@
 import struct
 import time
 import sys
-import csv
 import datetime
-
-fileName = f"sgp30_{time.strftime('%Y%m%d-%H%M%S')}.csv"
-csvHeader = ['timestamp', 'CO2', 'TVOC']
 
 class SGP30:
     def __init__(self, i2c_dev=None, i2c_msg=None, i2c_addr=0x58):
@@ -174,10 +170,6 @@ class SGP30:
 
 sgp30 = SGP30()
 
-# result = sgp30.command('set_baseline', (0xFECA, 0xBEBA))
-# result = sgp30.command('get_baseline')
-# print(["{:02x}".format(n) for n in result])
-
 print("Sensor warming up, please wait...")
 def crude_progress_bar():
     sys.stdout.write('.')
@@ -186,31 +178,21 @@ def crude_progress_bar():
 sgp30.start_measurement(crude_progress_bar)
 sys.stdout.write('\n')
 
-with open(fileName, mode='w', newline= '') as file:
-    writer = csv.writer(file)
-    writer.writerow(csvHeader)
+# connect to sqlite database 'air_quality.db'
+import sqlite3
+conn = sqlite3.connect('air_quality.db')
+c = conn.cursor()
 
-    readsCounter = 0
-    while True:
-        co2 , tvoc = sgp30.get_air_quality()
-        print("""Air Quality:
+while True:
+    timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    co2 , tvoc = sgp30.get_air_quality()
+    print("""Air Quality:
 Equivalent C02: {: 5d} (ppm)
 Total VOC:      {: 5d} (ppb)
 """.format(co2, tvoc))
 
-        # write to csv
-        timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        
-        co2Str = str(co2)
-        tvocStr = str(tvoc)
-        writer.writerow([timestamp, co2Str , tvocStr])
-        readsCounter += 1
-        time.sleep(1.0)
+    # write to database table
+    c.execute("INSERT INTO air_quality (timestamp, co2, tvoc) VALUES (?, ?, ?)", (timestamp, co2, tvoc))
+    conn.commit()
 
-        # roll over the file every 10k reads
-        if readsCounter >= 10000:
-            fileName = f"sgp30_{time.strftime('%Y%m%d-%H%M%S')}.csv"
-            with open(fileName, mode='w', newline= '') as file:
-                writer = csv.writer(file)
-                writer.writerow(csvHeader)
-            readsCounter = 0
+    time.sleep(1.0)
