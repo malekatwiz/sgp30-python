@@ -183,6 +183,10 @@ import sqlite3
 conn = sqlite3.connect('../../../air_quality.db')
 c = conn.cursor()
 
+# create table
+c.execute('''CREATE TABLE IF NOT EXISTS air_quality
+             (timestamp text, co2 integer, tvoc integer)''')
+
 while True:
     timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     co2 , tvoc = sgp30.get_air_quality()
