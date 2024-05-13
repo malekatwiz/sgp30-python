@@ -180,7 +180,7 @@ sys.stdout.write('\n')
 
 # connect to sqlite database 'air_quality.db'
 import sqlite3
-conn = sqlite3.connect('air_quality.db')
+conn = sqlite3.connect('../../../air_quality.db')
 c = conn.cursor()
 
 while True:
