@@ -167,7 +167,6 @@ class SGP30:
     def __del__(self):
         self._i2c_dev.close()
 
-
 sgp30 = SGP30()
 
 print("Sensor warming up, please wait...")
@@ -178,9 +177,14 @@ def crude_progress_bar():
 sgp30.start_measurement(crude_progress_bar)
 sys.stdout.write('\n')
 
+# get database name and location from env variable
+import os
+db_name = os.getenv('DB_NAME', 'air_quality.db')
+db_location = os.getenv('DB_LOCATION', '../../../')
+
 # connect to sqlite database 'air_quality.db'
 import sqlite3
-conn = sqlite3.connect('../../../air_quality.db')
+conn = sqlite3.connect(db_location + db_name)
 c = conn.cursor()
 
 # create table
